@@ -37,5 +37,6 @@ ul {
   list-style: none;
   border-style: dashed;
   width: 60%;
+  margin-left: 20%;
 }
 </style>
