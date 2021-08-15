@@ -25,9 +25,6 @@ export default {
   components: {
     ListItem
   },
-  data() {
-    return {};
-  },
   computed: { ...mapGetters(["getFilteredData"]) },
   mounted() {
     console.log("New component mounted.");

@@ -21,19 +21,20 @@ import { mapMutations } from "vuex";
 
 export default {
   props: ["title", "count", "url", "index", "animUp", "animDown", "swaped"],
+
   data: function() {
     return {
       select: false,
-      clicked: false,
-      upAnimation: false,
-      isAnimEnd: this.getAnimationEnd()
+      clicked: false
     };
   },
+
   computed: {
-    ...mapGetters(["getData", "getFilteredData", "getAnimationEnd"])
+    ...mapGetters(["getData", "getFilteredData", "getLastClick"])
   },
+
   methods: {
-    ...mapMutations(["update", "swap"]),
+    ...mapMutations(["update", "swap", "onAnimation", "lastClick"]),
 
     click() {
       const c = this.$parent.$refs["list"].children;
@@ -45,12 +46,13 @@ export default {
 
       this.updateCount();
       this.clickAnimate();
+      this.lastClick(this.index);
     },
 
     updateCount() {
       const { index } = this.$props;
       const { count } = this.getData(index);
-      this.update({ index, selectedData: { count: parseInt(count) + 1 } });
+      this.update({ index, selectedData: { count: count + 1 } });
     },
 
     updateAnim(anim, index) {
@@ -64,32 +66,42 @@ export default {
         if (this.count >= dataUp.count) {
           this.updateAnim({ animationUp: true }, index);
           this.updateAnim({ animationDown: true }, index - 1);
+        } else {
+          this.clicked = false;
         }
       }
     },
 
-    animationEnd() {
+    animationEnd({ target }) {
       const { index } = this.$props;
-      this.update({ index, selectedData: { swaped: true } });
       if (this.select || this.clicked) {
-        this.swap({ indexA: index, indexB: index - 1 });
-        this.clicked = false;
+        if (target.classList.contains("li-animation-up")) {
+          this.clicked = false;
+
+          this.swap({ indexA: index, indexB: index - 1 });
+          this.update({ index, selectedData: { swaped: true } });
+          this.update({ index: index - 1, selectedData: { swaped: true } });
+
+          this.updateAnim(
+            { animationUp: false, animationDown: false },
+            index - 1
+          );
+          this.updateAnim({ animationDown: false, animationUp: false }, index);
+        }
       }
     }
   },
+
   beforeUpdate() {
+    const { index } = this.$props;
+    const c = this.$parent.$refs["list"].children;
     if (this.swaped) {
-      const { index } = this.$props;
-      const c = this.$parent.$refs["list"].children;
+      if (this.getLastClick() - 1 !== index) {
+        this.select = false;
+      }
       c[index].classList.remove("li-animation-up");
       c[index].classList.remove("li-animation-down");
       this.update({ index, selectedData: { swaped: false } });
-    }
-  },
-  watch: {
-    // whenever question changes, this function will run
-    isAnimEnd() {
-      console.log("asdfg");
     }
   }
 };

@@ -9,8 +9,8 @@ for (const i in unfilterData) {
     url: ii.link,
     title: ii.title,
     description: ii.description,
-    index: i,
-    count: i,
+    index: parseInt(i),
+    count: parseInt(i),
     animationUp: false,
     animationDown: false,
     swaped: false
@@ -20,7 +20,7 @@ for (const i in unfilterData) {
 export default createStore({
   state: {
     filteredData,
-    animationEnd: [false, false]
+    lastClickIndex: null
   },
   mutations: {
     add(state, newData) {
@@ -43,12 +43,21 @@ export default createStore({
       const temp = filteredData[indexA];
       filteredData[indexA] = filteredData[indexB];
       filteredData[indexB] = temp;
+
+      const tempI = filteredData[indexA].index;
+      filteredData[indexA].index = filteredData[indexB].index;
+      filteredData[indexB].index = tempI;
+
       state.filteredData = [...filteredData];
+    },
+
+    lastClick(state, index) {
+      state.lastClickIndex = index;
     }
   },
   getters: {
     getData: state => index => state.filteredData[index],
     getFilteredData: state => () => state.filteredData,
-    getAnimationEnd: state => () => state.animationEnd
+    getLastClick: state => () => state.lastClickIndex
   }
 });
