@@ -7,7 +7,7 @@
 <script>
 export default {
   mounted() {
-    console.log("New component mounted.");
+    console.log("New component mounted. deneme");
   }
 };
 </script>
